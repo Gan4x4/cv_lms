@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>WB.Computer vision topics</title>
+    <!--
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    -->
+    <link href="static/css/bootstrap.min.css" rel="stylesheet" >
+    <style>
+      .page-shell {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 24px 16px 40px;
+      }
+
+      .filter-bar {
+        max-width: 480px;
+        margin-bottom: 24px;
+      }
+
+      #main {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .filter-item {
+        margin: 0;
+      }
+
+      .filter-trigger {
+        margin: 0;
+      }
+
+      .filter-collapse > .card {
+        margin-top: 6px;
+      }
+
+      .filter-collapse > .card > .card-body {
+        padding: 10px 12px;
+      }
+
+      .filter-children {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .filter-leaf + .filter-leaf {
+        margin-top: 8px;
+      }
+
+      .filter-item > .btn {
+        display: inline-block;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page-shell">
+      <h1 class="mb-3">Computer vision topics</h1>
+      <div class="filter-bar">
+        <input
+          id="page-filter"
+          class="form-control"
+          type="search"
+          placeholder="Filter topics and questions"
+          autocomplete="off"
+        >
+      </div>
+      <div id="main" class="container-fluid px-0">
+
+        <!-- Content here -->
+        {}
+
+      </div>
+    </div>
+
+    <!--
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    -->
+    <script src="static/js/bootstrap.bundle.min.js" ></script>
+    <script>
+      const filterInput = document.getElementById("page-filter");
+      const rootItems = Array.from(document.querySelectorAll("#main > .filter-item"));
+
+      function getChildItems(item) {
+        const childContainer = item.querySelector(":scope > .filter-collapse .filter-children");
+        if (!childContainer) {
+          return [];
+        }
+        return Array.from(childContainer.children).filter((child) => child.classList.contains("filter-item"));
+      }
+
+      function applyFilter(item, query) {
+        const label = item.querySelector(":scope .filter-label")?.textContent.toLowerCase() || "";
+        const childItems = getChildItems(item);
+        let hasVisibleChild = false;
+
+        childItems.forEach((child) => {
+          hasVisibleChild = applyFilter(child, query) || hasVisibleChild;
+        });
+
+        const matchesLabel = !query || label.includes(query);
+        const isVisible = !query || matchesLabel || hasVisibleChild;
+        item.style.display = isVisible ? "" : "none";
+
+        const collapse = item.querySelector(":scope > .filter-collapse");
+        const trigger = item.querySelector(":scope > .filter-trigger .filter-label");
+        if (collapse) {
+          const shouldExpand = Boolean(query) && hasVisibleChild;
+          collapse.classList.toggle("show", shouldExpand);
+          if (trigger) {
+            trigger.setAttribute("aria-expanded", shouldExpand ? "true" : "false");
+          }
+        }
+
+        return isVisible;
+      }
+
+      function runFilter() {
+        const query = filterInput.value.trim().toLowerCase();
+        rootItems.forEach((item) => applyFilter(item, query));
+      }
+
+      filterInput.addEventListener("input", runFilter);
+    </script>
+  </body>
+</html>

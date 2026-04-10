@@ -1,0 +1,7 @@
+.venv/
+.idea/
+__pycache__/
+test/__pycache__/
+*.pyc
+var/cache/
+var/generated/
