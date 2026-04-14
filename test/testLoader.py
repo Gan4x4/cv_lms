@@ -30,10 +30,11 @@ class LoaderCacheTestCase(unittest.TestCase):
             with patch("loader.request.urlopen", return_value=response) as urlopen:
                 result = _download_csv("https://example.com/topics.csv?gid=1&format=csv", destination)
 
-            request_obj = urlopen.call_args.args[0]
+            request_obj = urlopen.call_args[0][0]
+            headers = {key.lower(): value for key, value in request_obj.header_items()}
             self.assertIn("_cache_bust=", request_obj.full_url)
-            self.assertEqual("no-cache", request_obj.headers["Cache-control"])
-            self.assertEqual("no-cache", request_obj.headers["Pragma"])
+            self.assertEqual("no-cache", headers["cache-control"])
+            self.assertEqual("no-cache", headers["pragma"])
             self.assertEqual(destination, result["filename"])
             self.assertFalse(result["connection_failed"])
 

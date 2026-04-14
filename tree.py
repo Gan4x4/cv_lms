@@ -32,7 +32,9 @@ def tree(data):
         return {}
     childs = {}
     topics = data.iloc[:, 0]
-    idx = np.argwhere(~topics.isnull()).flatten()
+    # Convert to a plain numpy array before locating non-empty rows.
+    # Older pandas/numpy combinations can mis-handle np.argwhere on Series.
+    idx = np.flatnonzero(~topics.isnull().to_numpy())
     if len(idx) == 0:  # first column are empty, so skip it
         crop = data.iloc[:, 1:]
         childs = tree(crop)
