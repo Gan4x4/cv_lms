@@ -33,6 +33,15 @@ class HTMLBuilder(object):
     def add(self, content):
         self.core += content
 
-    def save(self, file_path):
+    def save(self, file_path, context=None):
         modified_html = self.page.replace("{}", self.core)
+        replacements = {
+            "__STATUS_BADGE__": "",
+            "__REFRESH_FORM__": "",
+            "__PAGE_FOOTER__": "",
+        }
+        if context:
+            replacements.update(context)
+        for placeholder, value in replacements.items():
+            modified_html = modified_html.replace(placeholder, value)
         save_modified_html(modified_html, file_path)

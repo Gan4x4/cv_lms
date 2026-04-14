@@ -6,6 +6,7 @@ from loader import load_topics
 
 
 MAX_LEVEL = 2
+URL_PATTERN = re.compile(r"https?://[^\s]+")
 #def read_csv(filename):
 #    data = []
 #    with open(filename, mode='r', encoding='utf-8') as file:
@@ -21,7 +22,17 @@ MAX_LEVEL = 2
 # gdown.download(url=url, output = "questions.xls", fuzzy=True)
 
 def make_url_clickable(text):
-    return re.sub(r"(https?://[^\s]+)", r'<a href="\1" target="_blank">\1</a>', text)
+    parts = []
+    cursor = 0
+
+    for match in URL_PATTERN.finditer(text):
+        parts.append(text[cursor:match.start()])
+        url = match.group(0)
+        parts.append(f'<a href="{url}" target="_blank">{url}</a>')
+        cursor = match.end()
+
+    parts.append(text[cursor:])
+    return "".join(parts)
 
 
 class Wrapper(object):

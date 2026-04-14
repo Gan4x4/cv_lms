@@ -5,3 +5,5 @@ test/__pycache__/
 *.pyc
 var/cache/
 var/generated/
+.codex/
+config/config.ini
