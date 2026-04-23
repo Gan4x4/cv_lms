@@ -5,7 +5,6 @@ from time import time
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 from urllib import request
 
-import numpy as np
 import pandas as pd
 
 
@@ -32,9 +31,10 @@ def _clear_directory(directory):
 
 def clear_runtime_cache(config_path):
     config = load_config(config_path)
-    cache_dir = os.path.dirname(config["topics"].get("cache_path", "")) or "var/cache"
     generated_dir = os.path.dirname(config["app"].get("topics_output", "")) or "var/generated"
-    _clear_directory(cache_dir)
+    for section_name in ("topics", "questions"):
+        if config.has_section(section_name):
+            _remove_file_if_exists(config[section_name].get("cache_path"))
     _clear_directory(generated_dir)
 
 
@@ -127,14 +127,90 @@ def load_questions(config_path):
     return data, source_state
 
 
+def _cell_text(value):
+    if pd.isna(value):
+        return None
+    text = str(value).strip()
+    return text or None
+
+
+def _question_link_columns(data):
+    if data.empty:
+        return []
+    header = data.iloc[0]
+    return [
+        column_index
+        for column_index, value in enumerate(header)
+        if _cell_text(value) and _cell_text(value).lower().startswith("link")
+    ]
+
+
+def _topics_from_questions(data):
+    link_columns = _question_link_columns(data)
+    rows = []
+    current_topic = None
+    current_subtopic = None
+    seen_links = {}
+
+    for _, source_row in data.iloc[1:].iterrows():
+        topic = _cell_text(source_row.iloc[1]) if len(source_row) > 1 else None
+        subtopic = _cell_text(source_row.iloc[2]) if len(source_row) > 2 else None
+        links = [
+            text
+            for column_index in link_columns
+            if column_index < len(source_row)
+            for text in [_cell_text(source_row.iloc[column_index])]
+            if text
+        ]
+
+        if topic:
+            current_topic = topic
+            current_subtopic = None
+
+        if subtopic:
+            current_subtopic = subtopic
+
+        if not topic and not subtopic and not links:
+            continue
+
+        target_key = None
+        if subtopic or current_subtopic:
+            target_key = ("subtopic", topic or current_topic, subtopic or current_subtopic)
+        elif topic or current_topic:
+            target_key = ("topic", topic or current_topic)
+
+        if links and target_key is not None:
+            target_seen = seen_links.setdefault(target_key, set())
+            unique_links = []
+            for link in links:
+                if link in target_seen:
+                    continue
+                target_seen.add(link)
+                unique_links.append(link)
+            links = unique_links
+
+        if not links:
+            rows.append([topic, subtopic, None])
+            continue
+
+        if subtopic or current_subtopic:
+            rows.append([topic, subtopic, links[0]])
+            rows.extend([[None, None, link] for link in links[1:]])
+            continue
+
+        if topic or current_topic:
+            rows.append([topic, links[0], None])
+            rows.extend([[None, link, None] for link in links[1:]])
+            continue
+
+        rows.append([links[0], None, None])
+        rows.extend([[None, link, None] for link in links[1:]])
+
+    return pd.DataFrame(rows)
+
+
 def load_topics(config_path):
     config = load_config(config_path)
-    source_state = _load_sheet_source(config, "topics")
+    source_state = _load_sheet_source(config, "questions")
     data = pd.read_csv(source_state["filename"], header=None)
-    index = np.where(data == 'Защита работ')
-    if len(index[0]):
-        stop = index[0][0]
-    else:
-        stop = len(data)
-    data = data.iloc[1:stop, 1:]
-    return data, source_state
+    return _topics_from_questions(data), source_state
