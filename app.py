@@ -11,10 +11,11 @@ from wrapper import Wrapper
 app = Flask(__name__)
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
 
-CONFIG_PATH = "config/config.ini"
+CONFIG_PATH = "config/cv.ini"
+AGENTS_CONFIG_PATH = "config/agents.ini"
 
 
-def build_page_context(source_state, current_path):
+def build_page_context(config, source_state, current_path):
     status_badge = ""
     if source_state["connection_failed"]:
         status_badge = '<span class="badge text-bg-danger page-status-badge">Connection failed, using cache</span>'
@@ -29,20 +30,22 @@ def build_page_context(source_state, current_path):
     )
 
     return {
+        "__PAGE_TITLE__": config["app"].get("title", "Computer vision topics"),
         "__STATUS_BADGE__": status_badge,
         "__REFRESH_FORM__": refresh_form,
         "__PAGE_FOOTER__": page_footer,
     }
 
 
-def render_cached_or_fresh(loader, output_file, current_path):
+def render_cached_or_fresh(loader, config_path, output_file, current_path):
     try:
-        data, source_state = loader(CONFIG_PATH)
+        config = load_config(config_path)
+        data, source_state = loader(config_path)
         t = tree(data)
         wrapper = Wrapper(max_level=2)
         html = wrapper.wrap(t)
         wrapper.builder.add(html)
-        wrapper.builder.save(output_file, context=build_page_context(source_state, current_path))
+        wrapper.builder.save(output_file, context=build_page_context(config, source_state, current_path))
     except Exception:
         pass
     return load_html_from_file(output_file)
@@ -51,25 +54,43 @@ def render_cached_or_fresh(loader, output_file, current_path):
 @app.route('/')
 def topics():
     config = load_config(CONFIG_PATH)
-    return render_cached_or_fresh(load_topics, config["app"]["topics_output"], "/")
+    return render_cached_or_fresh(load_topics, CONFIG_PATH, config["app"]["topics_output"], "/")
 
 
 @app.route('/questions')
 def questions():
     config = load_config(CONFIG_PATH)
-    return render_cached_or_fresh(load_questions, config["app"]["questions_output"], "/questions")
+    return render_cached_or_fresh(load_questions, CONFIG_PATH, config["app"]["questions_output"], "/questions")
+
+
+@app.route('/agents')
+def agents_topics():
+    config = load_config(AGENTS_CONFIG_PATH)
+    return render_cached_or_fresh(load_topics, AGENTS_CONFIG_PATH, config["app"]["topics_output"], "/agents")
+
+
+@app.route('/agents/questions')
+def agents_questions():
+    config = load_config(AGENTS_CONFIG_PATH)
+    return render_cached_or_fresh(
+        load_questions,
+        AGENTS_CONFIG_PATH,
+        config["app"]["questions_output"],
+        "/agents/questions",
+    )
 
 
 @app.route('/refresh', methods=['POST'])
 def refresh():
-    clear_runtime_cache(CONFIG_PATH)
     next_path = request.form.get("next") or "/"
+    config_path = AGENTS_CONFIG_PATH if next_path.startswith("/agents") else CONFIG_PATH
+    clear_runtime_cache(config_path)
     return redirect(next_path)
 
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--config", default="config/config.ini", help="Path to INI config file")
+    parser.add_argument("--config", default="config/cv.ini", help="Path to INI config file")
     return parser.parse_args()
 
 

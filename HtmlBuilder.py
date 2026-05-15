@@ -36,6 +36,7 @@ class HTMLBuilder(object):
     def save(self, file_path, context=None):
         modified_html = self.page.replace("{}", self.core)
         replacements = {
+            "__PAGE_TITLE__": "Computer vision topics",
             "__STATUS_BADGE__": "",
             "__REFRESH_FORM__": "",
             "__PAGE_FOOTER__": "",

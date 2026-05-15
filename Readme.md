@@ -21,14 +21,14 @@ Run with the remote Google Sheets config:
 Run with the local fixture config:
 
 ```bash
-.venv/bin/python app.py --config config/config.local.ini
+.venv/bin/python app.py --config config/cv.local.ini
 ```
 
 ## Run In Production
 
 Production should run the Flask app behind Gunicorn and nginx.
 
-`wsgi.py` loads the application with the default config, so production settings should be stored in `config/config.ini`.
+`wsgi.py` loads the application with the default CV config, so production settings should be stored in `config/cv.ini`.
 
 Example direct start:
 
