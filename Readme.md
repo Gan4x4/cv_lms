@@ -3,8 +3,8 @@
 ## Install
 
 ```bash
-python3 -m venv .venv
-.venv/bin/pip install -r requirements.txt
+python3 -m venv venv
+venv/bin/pip install -r requirements.txt
 mkdir -p var/cache var/generated
 ```
 
@@ -15,13 +15,13 @@ The process user must have write access to `var/cache` and `var/generated`.
 Run with the remote Google Sheets config:
 
 ```bash
-.venv/bin/python app.py
+venv/bin/python app.py
 ```
 
 Run with the local fixture config:
 
 ```bash
-.venv/bin/python app.py --config config/cv.local.ini
+venv/bin/python app.py --config config/cv.local.ini
 ```
 
 ## Run In Production
@@ -33,7 +33,7 @@ Production should run the Flask app behind Gunicorn and nginx.
 Example direct start:
 
 ```bash
-.venv/bin/gunicorn --workers 2 --bind 127.0.0.1:8000 wsgi:app
+venv/bin/gunicorn --workers 2 --bind 127.0.0.1:8000 wsgi:app
 ```
 
 ## systemd
@@ -49,8 +49,8 @@ After=network.target
 User=www-data
 Group=www-data
 WorkingDirectory=/opt/course
-Environment="PATH=/opt/course/.venv/bin"
-ExecStart=/opt/course/.venv/bin/gunicorn --workers 2 --bind 127.0.0.1:8000 wsgi:app
+Environment="PATH=/opt/course/venv/bin"
+ExecStart=/opt/course/venv/bin/gunicorn --workers 2 --bind 127.0.0.1:8000 wsgi:app
 Restart=always
 RestartSec=5
 
