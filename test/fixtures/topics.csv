@@ -1,0 +1,13 @@
+Время,Теория,,,Материалы,,,,,Практика,,
+,,,,notebook,article,,slides,video,Вариант 1,Вариант 2,Вариант 3
+неделя 1,Введение в ML,,,,,,https://example.com/slides/ml-intro,https://example.com/video/ml-intro,,,
+,,,,,,,,,,,
+,Классический ML,,,,,,,,,,
+,,KNN,Обзор,https://example.com/notebooks/knn,https://example.com/articles/knn,,https://example.com/slides/knn,,,,
+,,Линейные модели,Регрессия,https://example.com/notebooks/linear-regression,https://example.com/articles/linear-regression,,https://example.com/slides/linear-regression,,,,
+неделя 2,Подготовка данных,,,,,,https://example.com/slides/data-prep,,,,
+,,Нормализация,StandardScaler,https://example.com/notebooks/scaling,https://example.com/articles/scaling,,,https://example.com/video/scaling,,,
+неделя 3,Deep Learning,,,,,,https://example.com/slides/dl-intro,,,,
+,,MLP,Архитектура,https://example.com/notebooks/mlp,https://example.com/articles/mlp,,https://example.com/slides/mlp,https://example.com/video/mlp,,,
+,,CNN,Свертки,https://example.com/notebooks/cnn,https://example.com/articles/cnn,,https://example.com/slides/cnn,https://example.com/video/cnn,,,
+,Защита работ,,,,,,,,,,

@@ -1,6 +1,6 @@
 import unittest
 
-from wrapper import Wrapper, classify_url_label, label_from_url, make_url_clickable
+from wrapper import Wrapper, classify_url_label, label_from_url, make_url_clickable, topic_anchor
 
 
 class WrapperTestCase(unittest.TestCase):
@@ -109,6 +109,27 @@ class WrapperTestCase(unittest.TestCase):
         self.assertIn("Colab", rendered)
         self.assertIn(">b</a>", rendered)
         self.assertIn(">c</a>", rendered)
+
+    def test_topic_anchor_is_short_english_and_deterministic(self):
+        name = "Классическое машинное обучение"
+
+        self.assertEqual("klassicheskoe-mashinnoe-obuchenie", topic_anchor(name))
+        self.assertEqual(topic_anchor(name), topic_anchor(name))
+
+    def test_wrap_adds_stable_anchor_ids_to_topics(self):
+        wrapper = Wrapper()
+        rendered = wrapper.wrap(
+            {
+                "Классическое машинное обучение": {
+                    "Метод k ближайших соседей": {},
+                }
+            }
+        )
+
+        self.assertIn('id="klassicheskoe-mashinnoe-obuchenie"', rendered)
+        self.assertIn('id="metod-k-blizhaishikh-sosedei"', rendered)
+        self.assertIn('href="#0"', rendered)
+        self.assertIn('data-anchor="#klassicheskoe-mashinnoe-obuchenie"', rendered)
 
 
 if __name__ == '__main__':

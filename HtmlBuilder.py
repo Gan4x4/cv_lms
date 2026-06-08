@@ -19,15 +19,18 @@ class HTMLBuilder(object):
         self.page = load_html_from_file(f"{self.template_dir}{os.sep}template.html")
         self.button = load_html_from_file(f"{self.template_dir}{os.sep}button.html")
 
-    def make_collapse(self, name, content):
+    def make_collapse(self, name, content, anchor=None):
         x = self.collapse.replace("{id}", str(self.id))
+        x = x.replace("{anchor_href}", anchor or str(self.id))
         x = x.replace("{name}", name)
         x = x.replace("{text}", content)
+        x = x.replace("{anchor_attr}", f' id="{anchor}"' if anchor else "")
         self.id += 1
         return x
 
-    def make_button(self, name):
+    def make_button(self, name, anchor=None):
         x = self.button.replace("{name}", name)
+        x = x.replace("{anchor_attr}", f' id="{anchor}"' if anchor else "")
         return x
 
     def add(self, content):

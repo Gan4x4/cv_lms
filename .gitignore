@@ -5,5 +5,11 @@ test/__pycache__/
 *.pyc
 var/cache/
 var/generated/
-.codex/
+.codex
 config/config.ini
+problems.csv
+*.pdf
+test/data/
+config/agents.ini
+config/cv.ini
+scripts/build_topics_matrix.py

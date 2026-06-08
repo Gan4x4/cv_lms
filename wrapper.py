@@ -1,6 +1,7 @@
 import re
 import os
 from urllib.parse import urlsplit, unquote
+from slugify import slugify
 from HtmlBuilder import HTMLBuilder
 
 
@@ -10,6 +11,10 @@ GENERIC_SEGMENTS = {"", "edit", "view", "blob", "tree", "main", "drive", "d", "a
 
 def is_opaque_segment(segment):
     return len(segment) >= 16 and any(char.isdigit() for char in segment)
+
+
+def topic_anchor(name):
+    return slugify(str(name), max_length=64, word_boundary=True) or "topic"
 
 
 def classify_url_label(url):
@@ -134,9 +139,9 @@ class Wrapper(object):
             else:
                 v = ""
             if len(v):
-                out += self.builder.make_collapse(key, v)
+                out += self.builder.make_collapse(key, v, topic_anchor(key))
             else:
-                out += self.builder.make_button(key)
+                out += self.builder.make_button(key, topic_anchor(key))
 
         if inline_links:
             out += '<div class="filter-leaf filter-link-row">' + "".join(inline_links) + "</div>\n"

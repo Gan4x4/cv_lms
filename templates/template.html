@@ -182,6 +182,36 @@
       }
 
       filterInput.addEventListener("input", runFilter);
+      document.querySelectorAll("#main .filter-trigger .filter-label[href]").forEach((trigger) => {
+        trigger.addEventListener("click", () => {
+          const anchor = trigger.dataset.anchor;
+          const fallback = trigger.getAttribute("href");
+          const hash = anchor && !anchor.includes("{") ? anchor : fallback;
+          setTimeout(() => window.history.replaceState(null, "", hash), 0);
+        });
+      });
+
+      function openLinkedTopic() {
+        const targetId = decodeURIComponent(window.location.hash.slice(1));
+        const target = document.getElementById(targetId);
+        if (!target) {
+          return;
+        }
+
+        let item = target.classList.contains("filter-item") ? target : target.closest(".filter-item");
+        while (item) {
+          const collapse = item.querySelector(":scope > .filter-collapse");
+          if (collapse) {
+            bootstrap.Collapse.getOrCreateInstance(collapse, { toggle: false }).show();
+          }
+          item = item.parentElement?.closest(".filter-item");
+        }
+
+        setTimeout(() => target.scrollIntoView({ block: "start" }), 0);
+      }
+
+      openLinkedTopic();
+      window.addEventListener("hashchange", openLinkedTopic);
     </script>
   </body>
 </html>
