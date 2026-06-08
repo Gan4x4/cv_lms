@@ -5,7 +5,7 @@ APP_DIR="${APP_DIR:-/var/www/sites/wb}"
 BRANCH="${BRANCH:-main}"
 SERVICE_NAME="${SERVICE_NAME:-flask.service}"
 DEPLOY_USER="${DEPLOY_USER:-${SUDO_USER:-$(id -un)}}"
-VENV_DIR="${VENV_DIR:-.venv}"
+VENV_DIR="${VENV_DIR:-venv}"
 RUN_TESTS="${RUN_TESTS:-1}"
 RELOAD_NGINX="${RELOAD_NGINX:-1}"
 
